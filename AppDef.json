@@ -1,6 +1,6 @@
 {
     "name": "HPC Test Environment",
-    "description": "Test environment featuring job scheduler (TORQUE) and MPI (OpenMPI) for validating and benchmarking HPC workflows on the Nimbix Cloud.  Store binaries in /data to share across multiple nodes or Use nimbix/base-centos-torque to build your own containerized environments with additional capabilities.",
+    "description": "Test environment featuring job scheduler (TORQUE) and MPI (OpenMPI) for validating and benchmarking HPC workflows on the Nimbix Cloud.  Store binaries in /data to share across multiple nodes or use jarvice/base-centos-torque to build your own containerized environments with additional capabilities.",
     "author": "Nimbix, Inc.",
     "licensed": true,
     "classifications": [
