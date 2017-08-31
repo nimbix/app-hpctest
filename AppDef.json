@@ -17,41 +17,10 @@
         "OBJECT"
     ],
     "commands": {
-        "Batch": {
-            "path": "/bin/bash",
-            "interactive": false,
-            "name": "Batch",
-            "description": "Run a batch command using /bin/bash.  The output may be monitored directly in your web browser.  Prefix with mpirun and use /etc/JARVICE/nodes as the machines file to distribute across the cluster.",
-            "parameters": {
-                "-l": {
-                    "name": "-l",
-                    "description": "-l",
-                    "type": "CONST",
-                    "value": "-l",
-                    "positional": true,
-                    "required": true
-                },
-                "-c": {
-                    "name": "-c",
-                    "description": "-c",
-                    "type": "CONST",
-                    "value": "-c",
-                    "positional": true,
-                    "required": true
-                },
-                "command": {
-                    "name": "Command",
-                    "description": "Command to run",
-                    "type": "STR",
-                    "positional": true,
-                    "required": true
-                }
-            }
-        },
-        "Server": {
+        "Cluster": {
             "path": "/sbin/init",
             "interactive": true,
-            "name": "Server",
+            "name": "Cluster",
             "description": "Launch a session with all boot services, including SSH.  Connection address and credentials will appear in your web browser once available.  You may also connect and interact with the session graphically in your browser.  Once logged in you may use TORQUE commands like qsub and qstat to submit and monitor job status, or use mpirun with the machines file /etc/JARVICE/nodes to run parallel commands directly.",
             "parameters": {}
         }
