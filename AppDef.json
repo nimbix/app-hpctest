@@ -8,7 +8,7 @@
         "Software Development/Software Testing"
     ],
     "machines": [
-        "n3"
+        "n[3-9]"
     ],
     "vault-types": [
         "FILE",
