@@ -39,32 +39,39 @@ ARG SLURM_VER
 COPY --from=build /tmp/x86_64/*.rpm /tmp/slurm/
 
 # Install runtime libs and handy tools
-#RUN yum -y install nano vim emacs man openmpi3 munge munge-libs mariadb-libs && \
-#    yum -y localinstall /tmp/slurm/slurm-${SLURM_VER}*.rpm /tmp/slurm/slurm-slurmctld*.rpm && \
-#    yum clean all
-
-RUN yum -y install epel-release
-RUN curl -H 'Cache-Control: no-cache' \
+RUN yum -y install epel-release && \
+    curl -H 'Cache-Control: no-cache' \
     https://raw.githubusercontent.com/nimbix/image-common/master/install-nimbix.sh \
-    | bash -s -- --setup-nimbix-desktop
-RUN yum -y install nano vim emacs man openmpi3 munge munge-libs mariadb-libs
-RUN yum -y install /tmp/slurm/slurm-${SLURM_VER}*.rpm /tmp/slurm/slurm-slurmctld*.rpm && \
+    | bash -s -- --setup-nimbix-desktop && \
+    yum -y install nano vim emacs man openmpi3 munge munge-libs mariadb-libs && \
+    yum -y install /tmp/slurm/slurm-${SLURM_VER}*.rpm /tmp/slurm/slurm-slurmctld*.rpm \
+                   /tmp/slurm/slurm-slurmd-*.rpm && \
     yum clean all
 
+#RUN yum -y install epel-release
+#RUN curl -H 'Cache-Control: no-cache' \
+#    https://raw.githubusercontent.com/nimbix/image-common/master/install-nimbix.sh \
+#    | bash -s -- --setup-nimbix-desktop
+#RUN yum -y install nano vim emacs man openmpi3 munge munge-libs mariadb-libs
+#RUN yum -y install /tmp/slurm/slurm-${SLURM_VER}*.rpm /tmp/slurm/slurm-slurmctld*.rpm \
+#    /tmp/slurm/slurm-slurmd-*.rpm && \
+#    yum clean all
+
 # Spool dirs for ctld
-RUN mkdir -p /var/spool/slurm/ctld
+RUN mkdir -p /var/spool/slurm/ctld /var/spool/slurm/d
+
+# plant a static munge key so all nodes are in sync
+WORKDIR /etc/munge
+COPY --chown=munge:munge etc/munge.key .
+
+# Configuration scripts for each node
+COPY etc/slurm.conf /etc/slurm/slurm.conf
+COPY etc/openmpi-path.sh /etc/profile.d/openmpi-path.sh
 
 # Install helper scripts for the running environment
-COPY scripts/openmpi-path.sh /etc/profile.d/openmpi-path.sh
-COPY scripts/slurm.conf /etc/slurm/slurm.conf
+WORKDIR /usr/local/scripts
+COPY scripts/cluster-start.sh .
 
 # Add the Nimbix tools
 COPY NAE/AppDef.json /etc/NAE/AppDef.json
 RUN curl --fail -X POST -d @/etc/NAE/AppDef.json https://api.jarvice.com/jarvice/validate
-
-# Expose port 22 for local JARVICE emulation in docker
-EXPOSE 22
-
-# for standalone use
-EXPOSE 5901
-EXPOSE 443
