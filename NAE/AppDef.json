@@ -19,19 +19,11 @@
   ],
   "commands": {
     "Cluster": {
-      "path": "/usr/local/bin/nimbix_desktop",
+      "path": "/usr/local/scripts/cluster-start.sh",
       "interactive": true,
       "name": "Cluster",
       "description": "Launch a session with all boot services, including SSH.  Connection address and credentials will appear in your web browser once available.  You may also connect and interact with the session graphically in your browser.  Once logged in you may use TORQUE commands like qsub and qstat to submit and monitor job status, or use mpirun with the machines file /etc/JARVICE/nodes to run parallel commands directly.",
-      "parameters": {
-        "slurm": {
-          "name": "Slurm cluster start command",
-          "type": "CONST",
-          "value": "/usr/local/scripts/cluster-start.sh",
-          "positional": true,
-          "required": true
-        }
-      }
+      "parameters": {}
     }
   },
   "image": {

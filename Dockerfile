@@ -4,7 +4,7 @@ ARG SLURM_VER=18.08.4
 ################# Multistage Build, stage 1 ###################################
 FROM centos:7 AS build
 LABEL maintainer="Nimbix, Inc." \
-      license="BSD"
+      license="Apache"
 
 # Update SERIAL_NUMBER to force rebuild of all layers (don't use cached layers)
 ARG SERIAL_NUMBER
@@ -25,9 +25,9 @@ RUN curl -O https://download.schedmd.com/slurm/slurm-${SLURM_VER}.tar.bz2 && \
     rpmbuild -ta slurm-${SLURM_VER}.tar.bz2 --define "_rpmdir /tmp"
 
 ################# Multistage Build, stage 2 ###################################
-FROM centos/systemd:latest
+FROM centos:7
 LABEL maintainer="Nimbix, Inc." \
-      license="BSD"
+      license="Apache"
 
 # Update SERIAL_NUMBER to force rebuild of all layers (don't use cached layers)
 ARG SERIAL_NUMBER
@@ -47,15 +47,6 @@ RUN yum -y install epel-release && \
     yum -y install /tmp/slurm/slurm-${SLURM_VER}*.rpm /tmp/slurm/slurm-slurmctld*.rpm \
                    /tmp/slurm/slurm-slurmd-*.rpm && \
     yum clean all
-
-#RUN yum -y install epel-release
-#RUN curl -H 'Cache-Control: no-cache' \
-#    https://raw.githubusercontent.com/nimbix/image-common/master/install-nimbix.sh \
-#    | bash -s -- --setup-nimbix-desktop
-#RUN yum -y install nano vim emacs man openmpi3 munge munge-libs mariadb-libs
-#RUN yum -y install /tmp/slurm/slurm-${SLURM_VER}*.rpm /tmp/slurm/slurm-slurmctld*.rpm \
-#    /tmp/slurm/slurm-slurmd-*.rpm && \
-#    yum clean all
 
 # Spool dirs for ctld
 RUN mkdir -p /var/spool/slurm/ctld /var/spool/slurm/d
