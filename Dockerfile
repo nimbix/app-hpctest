@@ -54,6 +54,7 @@ RUN mkdir -p /var/spool/slurm/ctld /var/spool/slurm/d
 # plant a static munge key so all nodes are in sync
 WORKDIR /etc/munge
 COPY --chown=munge:munge etc/munge.key .
+RUN chmod 0400 /etc/munge/munge.key
 
 # Configuration scripts for each node
 COPY etc/slurm.conf /etc/slurm/slurm.conf

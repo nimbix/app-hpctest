@@ -1,6 +1,6 @@
 {
   "name": "HPC Test Environment",
-  "description": "Test environment featuring a job scheduler (Slurm) and MPI (OpenMPI) for validating and benchmarking HPC workflows on the Nimbix Cloud.  Store binaries in /data to share across multiple nodes or use jarvice/base-centos-torque to build your own containerized environments with additional capabilities.",
+  "description": "Test environment featuring a job scheduler (Slurm) and MPI (OpenMPI) for validating and benchmarking HPC workflows on the Nimbix Cloud.  Store binaries in /data to share across multiple nodes.",
   "author": "Nimbix, Inc.",
   "licensed": true,
   "classifications": [
@@ -22,7 +22,7 @@
       "path": "/usr/local/scripts/cluster-start.sh",
       "interactive": true,
       "name": "Cluster",
-      "description": "Launch a session with all boot services, including SSH.  Connection address and credentials will appear in your web browser once available.  You may also connect and interact with the session graphically in your browser.  Once logged in you may use TORQUE commands like qsub and qstat to submit and monitor job status, or use mpirun with the machines file /etc/JARVICE/nodes to run parallel commands directly.",
+      "description": "Launch a session with all boot services, including SSH.  Connection address and credentials will appear in your web browser once available.  You may also connect and interact with the session graphically in your browser.  Once logged in you may use Slurm commands like sbatch and squeue to submit and monitor job status, or use mpirun with the machines file /etc/JARVICE/nodes to run parallel commands directly.",
       "parameters": {}
     }
   },

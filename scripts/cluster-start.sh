@@ -36,31 +36,32 @@ sudo sed -i "s/ControlMachine=JARVICE/ControlMachine=${CTRLR}/" /etc/slurm/slurm
 
 # Modify slurm.conf for DEFAULT settings if CPUs > 1
 #  e.g. NodeName=DEFAULT Procs=1
-NUMCPU=$(wc -l < /etc/JARVICE/cores)
+NUMCPU=$(nproc)
 if [[ ${NUMCPU} -gt 1 ]]; then
-    sudo sed -i "s/NodeName=DEFAULT Procs=1/NodeName=DEFAULT Procs=${NUMCPU}" /etc/slurm/slurm.conf
+    sudo sed -i "s/NodeName=DEFAULT Procs=1/NodeName=DEFAULT Procs=${NUMCPU}/" /etc/slurm/slurm.conf
 fi
 
-# sed slurm.conf for node names, DEFAULT settings for #CPUs
-for i in $(cat /etc/JARVICE/nodes); do
-#    sudo echo "NodeName=$i" >> /etc/slurm/slurm.conf
-    sudo echo "NodeName=$i" | sudo tee --append /etc/slurm/slurm.conf > /dev/null
-done
+# Update slurm.conf for node names
+#   Add the controller host if there's only one node
+if [[ $(wc -l < /etc/JARVICE/nodes) -eq 1 ]] ; then
+    sudo echo "NodeName=$HOSTNAME" | sudo tee --append /etc/slurm/slurm.conf > /dev/null
+else
+    for i in $(grep -v ^$HOSTNAME /etc/JARVICE/nodes); do
+        sudo echo "NodeName=$i" | sudo tee --append /etc/slurm/slurm.conf > /dev/null
+    done
+fi
 
 # Start munged as munge user, using the shared key, before the Slurm daemons
-sudo chmod 0400 /etc/munge/munge.key
 sudo -u munge mkdir /var/run/munge
 sudo -u munge munged
 
 # Start controller if on first node and
-#   start slurmd on all other nodes, unless only one node
-if [[ "$HOSTNAME" = ${CTRLR} ]] && [[ $(wc -l < /etc/JARVICE/nodes) -eq 1 ]] ; then
+#   start slurmd if only one node
+if [[ $(wc -l < /etc/JARVICE/nodes) -eq 1 ]] ; then
     sudo slurmctld
     sudo slurmd
-elif [[ "$HOSTNAME" = ${CTRLR} ]] ; then
-    sudo slurmctld
 else
-    sudo slurmd
+    sudo slurmctld
 fi
 
 # Start the desktop environment
