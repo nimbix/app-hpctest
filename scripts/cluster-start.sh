@@ -48,6 +48,8 @@ for i in $(cat /etc/JARVICE/nodes); do
 done
 
 # Start munged as munge user, using the shared key, before the Slurm daemons
+sudo chmod 0400 /etc/munge/munge.key
+sudo -u munge mkdir /var/run/munge
 sudo -u munge munged
 
 # Start controller if on first node and
