@@ -21,7 +21,7 @@ RUN curl -O https://download.schedmd.com/slurm/slurm-${SLURM_VER}.tar.bz2 && \
     yum -y groupinstall "Development Tools" && \
     yum -y install epel-release && \
     yum -y install munge-devel munge-libs readline-devel mariadb-devel \
-    openssl-devel openssl perl-ExtUtils-MakeMaker pam-devel bzip2 && \
+    openssl-devel openssl perl-ExtUtils-MakeMaker pam-devel bzip2 openmpi3-devel && \
     rpmbuild -ta slurm-${SLURM_VER}.tar.bz2 --define "_rpmdir /tmp"
 
 ################# Multistage Build, stage 2 ###################################
