@@ -35,10 +35,13 @@ read -r CTRLR < /etc/JARVICE/nodes
 sudo sed -i "s/ControlMachine=JARVICE/ControlMachine=${CTRLR}/" /etc/slurm/slurm.conf
 
 # Modify slurm.conf for DEFAULT settings if CPUs > 1
-#  e.g. NodeName=DEFAULT Procs=1
-NUMCPU=$(nproc)
+#  e.g. NodeName=DEFAULT Procs=1 SocketsPerBoard=2 CoresPerSocket=4 ThreadsPerCore=1
+SOCKETSPER=$(lscpu | grep Socket\(s\) | awk '{print $2}')
+COREPER=$(lscpu | grep Core\(s\) | awk '{print $4}')
+THREADPER=$(lscpu | grep Thread\(s\) | awk '{print $4}')
+NUMCPU=$(lscpu | grep CPU\(s\): | awk '{print $2}')
 if [[ ${NUMCPU} -gt 1 ]]; then
-    sudo sed -i "s/NodeName=DEFAULT Procs=1/NodeName=DEFAULT Procs=${NUMCPU}/" /etc/slurm/slurm.conf
+    sudo sed -i "s/NodeName=DEFAULT Procs=1/NodeName=DEFAULT Procs=${NUMCPU} SocketsPerBoard=${SOCKETSPER} CoresPerSocket=${COREPER} ThreadsPerCore=${THREADPER}/" /etc/slurm/slurm.conf
 fi
 
 # Update slurm.conf for node names

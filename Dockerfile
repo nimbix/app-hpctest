@@ -4,7 +4,7 @@ ARG SLURM_VER=18.08.4
 ################# Multistage Build, stage 1 ###################################
 FROM centos:7 AS build
 LABEL maintainer="Nimbix, Inc." \
-      license="Apache"
+      license="BSD"
 
 # Update SERIAL_NUMBER to force rebuild of all layers (don't use cached layers)
 ARG SERIAL_NUMBER
@@ -27,7 +27,7 @@ RUN curl -O https://download.schedmd.com/slurm/slurm-${SLURM_VER}.tar.bz2 && \
 ################# Multistage Build, stage 2 ###################################
 FROM centos:7
 LABEL maintainer="Nimbix, Inc." \
-      license="Apache"
+      license="BSD"
 
 # Update SERIAL_NUMBER to force rebuild of all layers (don't use cached layers)
 ARG SERIAL_NUMBER
