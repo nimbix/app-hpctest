@@ -45,7 +45,7 @@ RUN yum -y install epel-release && \
     | bash -s -- --setup-nimbix-desktop && \
     yum -y install nano vim emacs man openmpi3 munge munge-libs mariadb-libs && \
     yum -y install /tmp/slurm/slurm-${SLURM_VER}*.rpm /tmp/slurm/slurm-slurmctld*.rpm \
-                   /tmp/slurm/slurm-slurmd-*.rpm && \
+                   /tmp/slurm/slurm-slurmd-*.rpm /tmp/slurm/slurm-libpmi-*.rpm && \
     yum clean all
 
 # Spool dirs for ctld
