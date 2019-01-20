@@ -39,8 +39,9 @@ sudo sed -i "s/ControlMachine=JARVICE/ControlMachine=${CTRLR}/" /etc/slurm/slurm
 SOCKETSPER=$(lscpu | grep Socket\(s\) | awk '{print $2}')
 COREPER=$(lscpu | grep Core\(s\) | awk '{print $4}')
 THREADPER=$(lscpu | grep Thread\(s\) | awk '{print $4}')
-NUMCPU=$(lscpu | grep CPU\(s\): | awk '{print $2}')
+NUMCPU=$(nproc)
 if [[ ${NUMCPU} -gt 1 ]]; then
+    echo "  Updating Slurm CPU defaults..."
     sudo sed -i "s/NodeName=DEFAULT Procs=1/NodeName=DEFAULT Procs=${NUMCPU} SocketsPerBoard=${SOCKETSPER} CoresPerSocket=${COREPER} ThreadsPerCore=${THREADPER}/" /etc/slurm/slurm.conf
 fi
 
@@ -60,6 +61,7 @@ sudo -u munge munged
 
 # Start controller if on first node and
 #   start slurmd if only one node
+echo "  Starting Slurm daemons on controller node: $HOSTNAME..."
 if [[ $(wc -l < /etc/JARVICE/nodes) -eq 1 ]] ; then
     sudo slurmctld
     sudo slurmd
@@ -67,5 +69,18 @@ else
     sudo slurmctld
 fi
 
+# Copy the config to the compute nodes and start the services
+for i in `grep -v ^$HOSTNAME /etc/JARVICE/nodes`; do
+    echo "  Starting munge daemon on compute node $i..."
+    ssh ${i} sudo -u munge mkdir /var/run/munge
+    ssh ${i} sudo -u munge munged > /dev/null
+    echo "  Starting Slurm daemon on compute node $i..."
+    scp /etc/slurm/slurm.conf ${i}:/tmp/slurm.conf > /dev/null
+    ssh ${i} sudo cp -f /tmp/slurm.conf /etc/slurm/slurm.conf
+    ssh ${i} sudo /usr/sbin/slurmd > /dev/null
+    ssh ${i} ln -sf /data /home/nimbix
+done
+
 # Start the desktop environment
+echo "  Starting the desktop environment..."
 exec /usr/local/bin/nimbix_desktop
