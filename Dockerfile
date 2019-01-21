@@ -21,17 +21,20 @@ RUN curl -O https://download.schedmd.com/slurm/slurm-${SLURM_VER}.tar.bz2 && \
     yum -y groupinstall "Development Tools" && \
     yum -y install epel-release && \
     yum -y install munge-devel munge-libs readline-devel mariadb-devel \
-    openssl-devel openssl perl-ExtUtils-MakeMaker pam-devel bzip2 openmpi3-devel && \
+    openssl-devel openssl perl-ExtUtils-MakeMaker pam-devel bzip2 \
+    openmpi3-devel openssl openssl-devel libssh2-devel pam-devel numactl \
+    numactl-devel hwloc hwloc-devel lua lua-devel readline-devel ncurses-devel \
+    gtk2-devel man2html libibmad libibumad perl-Switch  && \
     rpmbuild -ta slurm-${SLURM_VER}.tar.bz2 --define "_rpmdir /tmp"
 
 ################# Multistage Build, stage 2 ###################################
-FROM centos:7
+FROM nvidia/cuda:8.0-devel-centos7
 LABEL maintainer="Nimbix, Inc." \
       license="BSD"
 
 # Update SERIAL_NUMBER to force rebuild of all layers (don't use cached layers)
 ARG SERIAL_NUMBER
-ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20180116.1200}
+ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20180121.1200}
 
 ARG SLURM_VER
 
@@ -43,12 +46,15 @@ RUN yum -y install epel-release && \
     curl -H 'Cache-Control: no-cache' \
     https://raw.githubusercontent.com/nimbix/image-common/master/install-nimbix.sh \
     | bash -s -- --setup-nimbix-desktop && \
-    yum -y install nano vim emacs man openmpi3 munge munge-libs mariadb-libs && \
-    yum -y install /tmp/slurm/slurm-${SLURM_VER}*.rpm /tmp/slurm/slurm-slurmctld*.rpm \
-                   /tmp/slurm/slurm-slurmd-*.rpm /tmp/slurm/slurm-libpmi-*.rpm && \
+    yum -y install nano vim emacs man openmpi3 openmpi3-devel munge munge-libs \
+                   mariadb-libs && \
+    yum -y install /tmp/slurm/slurm-${SLURM_VER}*.rpm \
+                   /tmp/slurm/slurm-slurmctld*.rpm \
+                   /tmp/slurm/slurm-slurmd-*.rpm \
+                   /tmp/slurm/slurm-libpmi-*.rpm && \
     yum clean all
 
-# Spool dirs for ctld
+# Spool dirs for the controller
 RUN mkdir -p /var/spool/slurm/ctld /var/spool/slurm/d
 
 # plant a static munge key so all nodes are in sync
