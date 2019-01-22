@@ -64,6 +64,7 @@ RUN chmod 0400 /etc/munge/munge.key
 
 # Configuration scripts for each node
 COPY etc/slurm.conf /etc/slurm/slurm.conf
+COPY etc/gres.conf /etc/slurm/gres.conf
 COPY etc/openmpi-path.sh /etc/profile.d/openmpi-path.sh
 
 # Install helper scripts for the running environment

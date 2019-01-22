@@ -34,15 +34,24 @@
 read -r CTRLR < /etc/JARVICE/nodes
 sudo sed -i "s/ControlMachine=JARVICE/ControlMachine=${CTRLR}/" /etc/slurm/slurm.conf
 
+# Modify slurm.conf to indicate the general resources if GPUs are present
+#   model is Gres=gpu:tesla:2 but drop the optional Type
+echo "  Adding Slurm GPU defaults, if present..."
+NUMGPU=`(nvidia-smi -L 2>/dev/null || true)| wc -l`
+GPUDEF=""
+[[ ${NUMGPU} -gt 0 ]] && GPUDEF="Gres=gpu:${NUMGPU}"
+
 # Modify slurm.conf for DEFAULT settings if CPUs > 1
 #  e.g. NodeName=DEFAULT Procs=1 SocketsPerBoard=2 CoresPerSocket=4 ThreadsPerCore=1
 SOCKETSPER=$(lscpu | grep Socket\(s\) | awk '{print $2}')
 COREPER=$(lscpu | grep Core\(s\) | awk '{print $4}')
 THREADPER=$(lscpu | grep Thread\(s\) | awk '{print $4}')
-NUMCPU=$(nproc)
+NUMCPU=$(lscpu | grep ^CPU\(s\) | awk '{print $2}')
+
 if [[ ${NUMCPU} -gt 1 ]]; then
     echo "  Updating Slurm CPU defaults..."
-    sudo sed -i "s/NodeName=DEFAULT Procs=1/NodeName=DEFAULT Procs=${NUMCPU} SocketsPerBoard=${SOCKETSPER} CoresPerSocket=${COREPER} ThreadsPerCore=${THREADPER}/" /etc/slurm/slurm.conf
+    CPUDEF="Procs=${NUMCPU} SocketsPerBoard=${SOCKETSPER} CoresPerSocket=${COREPER} ThreadsPerCore=${THREADPER}"
+    sudo sed -i "s/NodeName=DEFAULT Procs=1/NodeName=DEFAULT ${CPUDEF} ${GPUDEF}/" /etc/slurm/slurm.conf
 fi
 
 # Update slurm.conf for node names
@@ -53,6 +62,14 @@ else
     for i in $(grep -v ^$HOSTNAME /etc/JARVICE/nodes); do
         sudo echo "NodeName=$i" | sudo tee --append /etc/slurm/slurm.conf > /dev/null
     done
+fi
+
+# Update the gres.conf if GPUs are present
+if [[ ${NUMGPU} -eq 1 ]]; then
+    sudo echo "Name=gpu File=/dev/nvidia0" | sudo tee --append /etc/slurm/gres.conf > /dev/null
+elif [[ ${NUMGPU} -gt 1 ]]; then
+    IDXGPU=$(expr ${NUMGPU} - 1)
+    sudo echo "Name=gpu File=/dev/nvidia[0-${IDXGPU}]" | sudo tee --append /etc/slurm/gres.conf > /dev/null
 fi
 
 # Start munged as munge user, using the shared key, before the Slurm daemons
@@ -69,14 +86,16 @@ else
     sudo slurmctld
 fi
 
-# Copy the config to the compute nodes and start the services
+# Copy the configs to the compute nodes and start the services
 for i in `grep -v ^$HOSTNAME /etc/JARVICE/nodes`; do
     echo "  Starting munge daemon on compute node $i..."
     ssh ${i} sudo -u munge mkdir /var/run/munge
     ssh ${i} sudo -u munge munged > /dev/null
     echo "  Starting Slurm daemon on compute node $i..."
     scp /etc/slurm/slurm.conf ${i}:/tmp/slurm.conf > /dev/null
+    scp /etc/slurm/gres.conf ${i}:/tmp/gres.conf > /dev/null
     ssh ${i} sudo cp -f /tmp/slurm.conf /etc/slurm/slurm.conf
+    ssh ${i} sudo cp -f /tmp/gres.conf /etc/slurm/gres.conf
     ssh ${i} sudo /usr/sbin/slurmd > /dev/null
     ssh ${i} ln -sf /data /home/nimbix
 done
