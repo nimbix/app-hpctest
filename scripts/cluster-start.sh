@@ -29,6 +29,16 @@
 # policies, either expressed or implied, of Nimbix, Inc.
 #
 
+# Wait for slaves...max of 60 seconds
+SLAVE_CHECK_TIMEOUT=60
+TOOLSDIR="/usr/local/JARVICE/tools"
+${TOOLSDIR}/bin/python_ssh_test ${SLAVE_CHECK_TIMEOUT}
+ERR=$?
+if [[ ${ERR} -gt 0 ]]; then
+    echo "One or more slaves failed to start" 1>&2
+    exit ${ERR}
+fi
+
 # Designate the first host as Slurm controller
 # and replace hostname in slurm.conf
 read -r CTRLR < /etc/JARVICE/nodes
@@ -39,7 +49,7 @@ sudo sed -i "s/ControlMachine=JARVICE/ControlMachine=${CTRLR}/" /etc/slurm/slurm
 echo "  Adding Slurm GPU defaults, if present..."
 NUMGPU=`(nvidia-smi -L 2>/dev/null || true)| wc -l`
 GPUDEF=""
-[[ ${NUMGPU} -gt 0 ]] && GPUDEF="Gres=gpu:${NUMGPU}"
+[[ ${NUMGPU} -gt 0 ]] && GPUDEF="Gres=gpu:${NUMGPU}" && echo "  Detected ${NUMGPU} GPUs..."
 
 # Modify slurm.conf for DEFAULT settings if CPUs > 1
 #  e.g. NodeName=DEFAULT Procs=1 SocketsPerBoard=2 CoresPerSocket=4 ThreadsPerCore=1
@@ -54,8 +64,9 @@ if [[ ${NUMCPU} -gt 1 ]]; then
     sudo sed -i "s/NodeName=DEFAULT Procs=1/NodeName=DEFAULT ${CPUDEF} ${GPUDEF}/" /etc/slurm/slurm.conf
 fi
 
-# Update slurm.conf for node names
+# Update slurm.conf for compute node names
 #   Add the controller host if there's only one node
+echo "  Adding compute nodes to config..."
 if [[ $(wc -l < /etc/JARVICE/nodes) -eq 1 ]] ; then
     sudo echo "NodeName=$HOSTNAME" | sudo tee --append /etc/slurm/slurm.conf > /dev/null
 else
@@ -66,13 +77,16 @@ fi
 
 # Update the gres.conf if GPUs are present
 if [[ ${NUMGPU} -eq 1 ]]; then
+    echo "  Adding single GPU device to resource config..."
     sudo echo "Name=gpu File=/dev/nvidia0" | sudo tee --append /etc/slurm/gres.conf > /dev/null
 elif [[ ${NUMGPU} -gt 1 ]]; then
     IDXGPU=$(expr ${NUMGPU} - 1)
+    echo "  Adding GPU devices to resource config..."
     sudo echo "Name=gpu File=/dev/nvidia[0-${IDXGPU}]" | sudo tee --append /etc/slurm/gres.conf > /dev/null
 fi
 
 # Start munged as munge user, using the shared key, before the Slurm daemons
+echo "  Starting Munge daemon on controller node..."
 sudo -u munge mkdir /var/run/munge
 sudo -u munge munged
 
@@ -102,4 +116,6 @@ done
 
 # Start the desktop environment
 echo "  Starting the desktop environment..."
+echo
+echo
 exec /usr/local/bin/nimbix_desktop
