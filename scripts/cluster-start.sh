@@ -71,7 +71,7 @@ fi
 # Update slurm.conf for compute node names
 #   Add the controller host as a compute node as well
 echo "  Adding compute nodes to config..."
-for i in /etc/JARVICE/nodes; do
+for i in $(cat /etc/JARVICE/nodes); do
     sudo echo "NodeName=$i" | sudo tee --append /etc/slurm/slurm.conf > /dev/null
 done
 
