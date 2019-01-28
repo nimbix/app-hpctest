@@ -39,6 +39,10 @@ if [[ ${ERR} -gt 0 ]]; then
     exit ${ERR}
 fi
 
+# start SSHd
+sudo service sshd status >/dev/null 2>&1 || sudo service sshd start
+sudo service sshd status >/dev/null 2>&1 || ${TOOLSDIR}/bin/sshd_start
+
 # Designate the first host as Slurm controller
 # and replace hostname in slurm.conf
 read -r CTRLR < /etc/JARVICE/nodes
@@ -65,15 +69,11 @@ if [[ ${NUMCPU} -gt 1 ]]; then
 fi
 
 # Update slurm.conf for compute node names
-#   Add the controller host if there's only one node
+#   Add the controller host as a compute node as well
 echo "  Adding compute nodes to config..."
-if [[ $(wc -l < /etc/JARVICE/nodes) -eq 1 ]] ; then
-    sudo echo "NodeName=$HOSTNAME" | sudo tee --append /etc/slurm/slurm.conf > /dev/null
-else
-    for i in $(grep -v ^$HOSTNAME /etc/JARVICE/nodes); do
-        sudo echo "NodeName=$i" | sudo tee --append /etc/slurm/slurm.conf > /dev/null
-    done
-fi
+for i in /etc/JARVICE/nodes; do
+    sudo echo "NodeName=$i" | sudo tee --append /etc/slurm/slurm.conf > /dev/null
+done
 
 # Update the gres.conf if GPUs are present
 if [[ ${NUMGPU} -eq 1 ]]; then
@@ -91,14 +91,10 @@ sudo -u munge mkdir /var/run/munge
 sudo -u munge munged
 
 # Start controller if on first node and
-#   start slurmd if only one node
+#   start slurmd as well
 echo "  Starting Slurm daemons on controller node: $HOSTNAME..."
-if [[ $(wc -l < /etc/JARVICE/nodes) -eq 1 ]] ; then
-    sudo slurmctld
-    sudo slurmd
-else
-    sudo slurmctld
-fi
+sudo slurmctld
+sudo slurmd
 
 # Copy the configs to the compute nodes and start the services
 for i in `grep -v ^$HOSTNAME /etc/JARVICE/nodes`; do
@@ -111,7 +107,7 @@ for i in `grep -v ^$HOSTNAME /etc/JARVICE/nodes`; do
     ssh ${i} sudo cp -f /tmp/slurm.conf /etc/slurm/slurm.conf
     ssh ${i} sudo cp -f /tmp/gres.conf /etc/slurm/gres.conf
     ssh ${i} sudo /usr/sbin/slurmd > /dev/null
-    ssh ${i} ln -sf /data /home/nimbix
+    ssh ${i} ln -sf /data $HOME
 done
 
 # Start the desktop environment
