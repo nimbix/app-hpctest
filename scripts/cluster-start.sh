@@ -29,6 +29,10 @@
 # policies, either expressed or implied, of Nimbix, Inc.
 #
 
+# start SSHd
+sudo service sshd status >/dev/null 2>&1 || sudo service sshd start
+sudo service sshd status >/dev/null 2>&1 || ${TOOLSDIR}/bin/sshd_start
+
 # Wait for slaves...max of 60 seconds
 SLAVE_CHECK_TIMEOUT=60
 TOOLSDIR="/usr/local/JARVICE/tools"
@@ -38,10 +42,6 @@ if [[ ${ERR} -gt 0 ]]; then
     echo "One or more slaves failed to start" 1>&2
     exit ${ERR}
 fi
-
-# start SSHd
-sudo service sshd status >/dev/null 2>&1 || sudo service sshd start
-sudo service sshd status >/dev/null 2>&1 || ${TOOLSDIR}/bin/sshd_start
 
 # Designate the first host as Slurm controller
 # and replace hostname in slurm.conf
