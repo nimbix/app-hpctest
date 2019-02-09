@@ -30,12 +30,12 @@
 #
 
 # start SSHd
+TOOLSDIR="/usr/local/JARVICE/tools"
 sudo service sshd status >/dev/null 2>&1 || sudo service sshd start
 sudo service sshd status >/dev/null 2>&1 || ${TOOLSDIR}/bin/sshd_start
 
 # Wait for slaves...max of 60 seconds
 SLAVE_CHECK_TIMEOUT=60
-TOOLSDIR="/usr/local/JARVICE/tools"
 ${TOOLSDIR}/bin/python_ssh_test ${SLAVE_CHECK_TIMEOUT}
 ERR=$?
 if [[ ${ERR} -gt 0 ]]; then
