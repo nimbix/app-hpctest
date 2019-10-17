@@ -1,5 +1,5 @@
 # Slurm release
-ARG SLURM_VER=18.08.4
+ARG SLURM_VER=18.08.8
 
 ################# Multistage Build, stage 1 ###################################
 FROM centos:7 AS build

@@ -51,7 +51,7 @@ sudo sed -i "s/ControlMachine=JARVICE/ControlMachine=${CTRLR}/" /etc/slurm/slurm
 # Modify slurm.conf to indicate the general resources if GPUs are present
 #   model is Gres=gpu:tesla:2 but drop the optional Type
 echo "  Adding Slurm GPU defaults, if present..."
-NUMGPU=`(nvidia-smi -L 2>/dev/null || true)| wc -l`
+NUMGPU=$( (nvidia-smi -L 2>/dev/null || true)| wc -l )
 GPUDEF=""
 [[ ${NUMGPU} -gt 0 ]] && GPUDEF="Gres=gpu:${NUMGPU}" && echo "  Detected ${NUMGPU} GPUs..."
 
@@ -71,9 +71,10 @@ fi
 # Update slurm.conf for compute node names
 #   Add the controller host as a compute node as well
 echo "  Adding compute nodes to config..."
-for i in $(cat /etc/JARVICE/nodes); do
-    sudo echo "NodeName=$i" | sudo tee --append /etc/slurm/slurm.conf > /dev/null
-done
+while read -r node
+do
+  sudo echo "NodeName=$node" | sudo tee --append /etc/slurm/slurm.conf > /dev/null
+done <  /etc/JARVICE/nodes
 
 # Update the gres.conf if GPUs are present
 if [[ ${NUMGPU} -eq 1 ]]; then
@@ -97,10 +98,11 @@ sudo slurmctld
 sudo slurmd
 
 # Copy the configs to the compute nodes and start the services
-for i in `grep -v ^$HOSTNAME /etc/JARVICE/nodes`; do
+for i in $(grep -v "^$HOSTNAME" /etc/JARVICE/nodes); do
     echo "  Starting munge daemon on compute node $i..."
     ssh ${i} sudo -u munge mkdir /var/run/munge
     ssh ${i} sudo -u munge munged > /dev/null
+
     echo "  Starting Slurm daemon on compute node $i..."
     scp /etc/slurm/slurm.conf ${i}:/tmp/slurm.conf > /dev/null
     scp /etc/slurm/gres.conf ${i}:/tmp/gres.conf > /dev/null
