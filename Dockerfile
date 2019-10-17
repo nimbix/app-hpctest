@@ -67,6 +67,9 @@ COPY etc/slurm.conf /etc/slurm/slurm.conf
 COPY etc/gres.conf /etc/slurm/gres.conf
 COPY etc/openmpi-path.sh /etc/profile.d/openmpi-path.sh
 
+# /usr/bin/ping fixup
+RUN chmod 04555 /usr/bin/ping
+
 # Install helper scripts for the running environment
 WORKDIR /usr/local/scripts
 COPY scripts/cluster-start.sh .
