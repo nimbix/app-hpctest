@@ -64,7 +64,7 @@ NUMCPU=$(lscpu | grep ^CPU\(s\) | awk '{print $2}')
 
 if [[ ${NUMCPU} -gt 1 ]]; then
     echo "  Updating Slurm CPU defaults..."
-    CPUDEF="Procs=${NUMCPU} SocketsPerBoard=${SOCKETSPER} CoresPerSocket=${COREPER} ThreadsPerCore=${THREADPER}"
+    CPUDEF="Procs=${NUMCPU} SocketsPerBoard=${SOCKETSPER} CoresPerSocket=${COREPER} ThreadsPerCore=${THREADPER} RealMemory=10000"
     sudo sed -i "s/NodeName=DEFAULT Procs=1/NodeName=DEFAULT ${CPUDEF} ${GPUDEF}/" /etc/slurm/slurm.conf
 fi
 
