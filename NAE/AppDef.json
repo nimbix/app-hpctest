@@ -25,7 +25,16 @@
       "interactive": true,
       "name": "Cluster",
       "description": "Launch a session with all boot services, including SSH.  Connection address and credentials will appear in your web browser once available.  You may also connect and interact with the session graphically in your browser.  Once logged in you may use Slurm commands like sbatch and squeue to submit and monitor job status, or use mpirun with the machines file /etc/JARVICE/nodes to run parallel commands directly.",
-      "parameters": {}
+      "parameters": {
+        "memory": {
+          "name": "memory",
+          "description": "total RAM of master node",
+          "type": "CONST",
+          "value": "%RAM%",
+          "positional": false,
+          "required": true
+        }
+      }
     }
   },
   "image": {
