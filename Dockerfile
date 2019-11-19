@@ -41,8 +41,13 @@ ARG SLURM_VER
 # Copy the built RPMs from the last stage, saving image size w/o built tools
 COPY --from=build /tmp/x86_64/*.rpm /tmp/slurm/
 
-# Install runtime libs and handy tools
-RUN yum -y install epel-release && \
+# Install runtime libs and handy tools, lock repo to 7.6 for MPI compatibility
+RUN sed -e  "s/7.5.1804/7.6.1810/g"  -i /etc/yum.repos.d/CentOS-Vault.repo && \
+    yum-config-manager --enable C7.6.1810-base && \
+    yum-config-manager --enable C7.6.1810-updates && \
+    yum-config-manager --disable base && \
+    yum-config-manager --disable updates && \
+    yum -y install epel-release && \
     curl -H 'Cache-Control: no-cache' \
     https://raw.githubusercontent.com/nimbix/image-common/master/install-nimbix.sh \
     | bash -s -- --setup-nimbix-desktop && \

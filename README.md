@@ -6,6 +6,9 @@ Slurm is built from source, no RPM is available upstream, in a multistage build.
 
 OpenMPI 3 is installed from EPEL
 
+### systemd limits
+https://wiki.fysik.dtu.dk/niflheim/Slurm_configuration#slurmd-systemd-limits
+
 [Slurm]: https://slurm.schedmd.com/
 
 [OpenMPI]: https://www.open-mpi.org/
