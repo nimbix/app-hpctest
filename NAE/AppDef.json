@@ -33,6 +33,14 @@
           "value": "%RAM%",
           "positional": false,
           "required": true
+        },
+        "desktop": {
+          "name": "desktop",
+          "description": "Start the desktop environment",
+          "type": "BOOL",
+          "value": true,
+          "positional": false,
+          "required": true
         }
       }
     }

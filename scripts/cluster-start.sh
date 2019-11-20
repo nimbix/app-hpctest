@@ -30,18 +30,19 @@
 #
 
 # start SSHd
-TOOLSDIR="/usr/local/JARVICE/tools"
-sudo service sshd status >/dev/null 2>&1 || sudo service sshd start
-sudo service sshd status >/dev/null 2>&1 || ${TOOLSDIR}/bin/sshd_start
+TOOLSDIR="/usr/local/JARVICE/tools/bin"
+${TOOLSDIR}/sshd_start
 
 # Wait for slaves...max of 60 seconds
 SLAVE_CHECK_TIMEOUT=60
-${TOOLSDIR}/bin/python_ssh_test ${SLAVE_CHECK_TIMEOUT}
+${TOOLSDIR}/python_ssh_test ${SLAVE_CHECK_TIMEOUT}
 ERR=$?
 if [[ ${ERR} -gt 0 ]]; then
   echo "One or more slaves failed to start" 1>&2
   exit ${ERR}
 fi
+
+DESKTOP=
 
 while [[ -n "$1" ]]; do
   case "$1" in
@@ -49,6 +50,10 @@ while [[ -n "$1" ]]; do
   memory)
     shift
     MEM="$1"
+    ;;
+  desktop)
+    shift
+    DESKTOP="$1"
     ;;
   *) ;;
 
@@ -127,7 +132,9 @@ for i in $(grep -v "^$HOSTNAME" /etc/JARVICE/nodes); do
 done
 
 # Start the desktop environment
-echo "  Starting the desktop environment..."
-echo
-echo
-exec /usr/local/bin/nimbix_desktop
+if [[ -n $DESKTOP ]] && [[ $DESKTOP = true ]]; then
+  echo "  Starting the desktop environment..."
+  echo
+  echo
+  exec /usr/local/bin/nimbix_desktop
+fi
