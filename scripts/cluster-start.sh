@@ -53,7 +53,7 @@ while [[ -n "$1" ]]; do
     ;;
   desktop)
     shift
-    DESKTOP="$1"
+    DESKTOP="true"
     ;;
   *) ;;
 
@@ -132,7 +132,7 @@ for i in $(grep -v "^$HOSTNAME" /etc/JARVICE/nodes); do
 done
 
 # Start the desktop environment
-if [[ -n $DESKTOP ]] && [[ $DESKTOP = true ]]; then
+if [[ -n $DESKTOP ]]; then
   echo "  Starting the desktop environment..."
   echo
   echo
