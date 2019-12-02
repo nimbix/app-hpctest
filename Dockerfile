@@ -8,7 +8,7 @@ LABEL maintainer="Nimbix, Inc." \
 
 # Update SERIAL_NUMBER to force rebuild of all layers (don't use cached layers)
 ARG SERIAL_NUMBER
-ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20180116.1200}
+ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20191201.1200}
 
 ARG SLURM_VER
 
@@ -34,7 +34,7 @@ LABEL maintainer="Nimbix, Inc." \
 
 # Update SERIAL_NUMBER to force rebuild of all layers (don't use cached layers)
 ARG SERIAL_NUMBER
-ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20180121.1200}
+ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20191201.1200}
 
 ARG SLURM_VER
 
