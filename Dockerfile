@@ -28,13 +28,14 @@ RUN curl -O https://download.schedmd.com/slurm/slurm-${SLURM_VER}.tar.bz2 && \
     rpmbuild -ta slurm-${SLURM_VER}.tar.bz2 --define "_rpmdir /tmp"
 
 ################# Multistage Build, stage 2 ###################################
-FROM nvidia/cuda:8.0-devel-centos7
+#FROM nvidia/cuda:8.0-devel-centos7
+FROM nvidia/cuda@sha256:6b69a95461c475611c35c498df59ef39e0da8416786acdf0c859472fb71590d2
 LABEL maintainer="Nimbix, Inc." \
       license="BSD"
 
 # Update SERIAL_NUMBER to force rebuild of all layers (don't use cached layers)
 ARG SERIAL_NUMBER
-ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20191201.1200}
+ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20191203.1000}
 
 ARG SLURM_VER
 
