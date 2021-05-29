@@ -1,5 +1,5 @@
 # Slurm release
-ARG SLURM_VER=18.08.8
+ARG SLURM_VER=20.11.7
 
 ################# Multistage Build, stage 1 ###################################
 FROM centos:7 AS build
@@ -8,7 +8,7 @@ LABEL maintainer="Nimbix, Inc." \
 
 # Update SERIAL_NUMBER to force rebuild of all layers (don't use cached layers)
 ARG SERIAL_NUMBER
-ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20191201.1200}
+ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20210529.1200}
 
 ARG SLURM_VER
 
@@ -29,13 +29,13 @@ RUN curl -O https://download.schedmd.com/slurm/slurm-${SLURM_VER}.tar.bz2 && \
 
 ################# Multistage Build, stage 2 ###################################
 #FROM nvidia/cuda:8.0-devel-centos7
-FROM nvidia/cuda@sha256:6b69a95461c475611c35c498df59ef39e0da8416786acdf0c859472fb71590d2
+FROM nvidia/cuda:11.3.0-devel-centos7
 LABEL maintainer="Nimbix, Inc." \
       license="BSD"
 
 # Update SERIAL_NUMBER to force rebuild of all layers (don't use cached layers)
 ARG SERIAL_NUMBER
-ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20191203.1000}
+ENV SERIAL_NUMBER ${SERIAL_NUMBER:-20210529.1000}
 
 ARG SLURM_VER
 
@@ -43,12 +43,7 @@ ARG SLURM_VER
 COPY --from=build /tmp/x86_64/*.rpm /tmp/slurm/
 
 # Install runtime libs and handy tools, lock repo to 7.6 for MPI compatibility
-RUN sed -e  "s/7.5.1804/7.6.1810/g"  -i /etc/yum.repos.d/CentOS-Vault.repo && \
-    yum-config-manager --enable C7.6.1810-base && \
-    yum-config-manager --enable C7.6.1810-updates && \
-    yum-config-manager --disable base && \
-    yum-config-manager --disable updates && \
-    yum -y install epel-release && \
+RUN yum -y install epel-release && \
     curl -H 'Cache-Control: no-cache' \
     https://raw.githubusercontent.com/nimbix/image-common/master/install-nimbix.sh \
     | bash -s -- --setup-nimbix-desktop && \
@@ -82,4 +77,4 @@ COPY scripts/cluster-start.sh .
 
 # Add the Nimbix tools
 COPY NAE/AppDef.json /etc/NAE/AppDef.json
-RUN curl --fail -X POST -d @/etc/NAE/AppDef.json https://api.jarvice.com/jarvice/validate
+RUN curl --fail -X POST -d @/etc/NAE/AppDef.json https://cloud.nimbix.net/api/jarvice/validate

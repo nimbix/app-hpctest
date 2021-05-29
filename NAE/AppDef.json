@@ -8,8 +8,8 @@
     "Software Development/Software Testing"
   ],
   "machines": [
-    "n[3-9]",
-    "n[1-9][0-9]",
+    "n[3-9]*",
+    "n[1-9][0-9]*",
     "ng[2-9]*",
     "ngd[3-9]*"
   ],
@@ -35,7 +35,7 @@
           "required": true
         },
         "desktop": {
-          "name": "desktop",
+          "name": "Desktop",
           "description": "Start the desktop environment",
           "type": "BOOL",
           "value": true,

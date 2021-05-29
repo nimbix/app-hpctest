@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2019, Nimbix, Inc.
+# Copyright (c) 2021, Nimbix, Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,12 +33,12 @@
 TOOLSDIR="/usr/local/JARVICE/tools/bin"
 ${TOOLSDIR}/sshd_start
 
-# Wait for slaves...max of 60 seconds
-SLAVE_CHECK_TIMEOUT=60
-${TOOLSDIR}/python_ssh_test ${SLAVE_CHECK_TIMEOUT}
+# Wait for workers...max of 60 seconds
+WORKER_CHECK_TIMEOUT=60
+${TOOLSDIR}/python_ssh_test ${WORKER_CHECK_TIMEOUT}
 ERR=$?
 if [[ ${ERR} -gt 0 ]]; then
-  echo "One or more slaves failed to start" 1>&2
+  echo "One or more workers failed to start" 1>&2
   exit ${ERR}
 fi
 
@@ -100,7 +100,7 @@ if [[ ${NUMGPU} -eq 1 ]]; then
   echo "  Adding single GPU device to resource config..."
   sudo echo "Name=gpu File=/dev/nvidia0" | sudo tee --append /etc/slurm/gres.conf >/dev/null
 elif [[ ${NUMGPU} -gt 1 ]]; then
-  IDXGPU=$(expr ${NUMGPU} - 1)
+  IDXGPU=$((NUMGPU - 1))
   echo "  Adding GPU devices to resource config..."
   sudo echo "Name=gpu File=/dev/nvidia[0-${IDXGPU}]" | sudo tee --append /etc/slurm/gres.conf >/dev/null
 fi
@@ -128,7 +128,7 @@ for i in $(grep -v "^$HOSTNAME" /etc/JARVICE/nodes); do
   ssh ${i} sudo cp -f /tmp/slurm.conf /etc/slurm/slurm.conf
   ssh ${i} sudo cp -f /tmp/gres.conf /etc/slurm/gres.conf
   ssh ${i} sudo /usr/sbin/slurmd >/dev/null
-  ssh ${i} ln -sf /data $HOME
+  ssh ${i} ln -sf /data "$HOME"
 done
 
 # Start the desktop environment
