@@ -24,7 +24,7 @@ RUN curl -O https://download.schedmd.com/slurm/slurm-${SLURM_VER}.tar.bz2 && \
     openssl-devel openssl perl-ExtUtils-MakeMaker pam-devel bzip2 \
     openmpi3-devel openssl openssl-devel libssh2-devel pam-devel numactl \
     numactl-devel hwloc hwloc-devel lua lua-devel readline-devel ncurses-devel \
-    gtk2-devel man2html libibmad libibumad perl-Switch  && \
+    gtk2-devel man2html libibmad libibumad perl-Switch python3 && \
     rpmbuild -ta slurm-${SLURM_VER}.tar.bz2 --define "_rpmdir /tmp"
 
 ################# Multistage Build, stage 2 ###################################
