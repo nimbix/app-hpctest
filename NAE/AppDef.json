@@ -1,6 +1,6 @@
 {
-  "name": "HPC Test Environment",
-  "description": "Test environment featuring a job scheduler (Slurm) and MPI (OpenMPI) for validating and benchmarking HPC workflows on the Nimbix Cloud.  Store binaries in /data to share across multiple nodes.",
+  "name": "HPC Test Environment with Slurm 20.11.7",
+  "description": "Test environment featuring a job scheduler (Slurm 20.11.7) and MPI (OpenMPI 3) for validating and benchmarking HPC workflows on the Nimbix Cloud.  Store binaries in /data to share across multiple nodes.",
   "author": "Nimbix, Inc.",
   "licensed": true,
   "classifications": [
