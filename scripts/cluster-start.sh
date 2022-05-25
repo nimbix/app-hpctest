@@ -108,7 +108,7 @@ fi
 # Start munged as munge user, using the shared key, before the Slurm daemons
 echo "  Starting Munge daemon on controller node..."
 sudo -u munge mkdir /var/run/munge
-sudo -u munge munged -f
+sudo -u munge munged --force -f
 
 # Start controller if on first node and
 #   start slurmd as well
@@ -120,7 +120,7 @@ sudo slurmd
 for i in $(grep -v "^$HOSTNAME" /etc/JARVICE/nodes); do
   echo "  Starting munge daemon on compute node $i..."
   ssh ${i} sudo -u munge mkdir /var/run/munge
-  ssh ${i} sudo -u munge munged -f >/dev/null
+  ssh ${i} sudo -u munge munged --force -f >/dev/null
 
   echo "  Starting Slurm daemon on compute node $i..."
   scp /etc/slurm/slurm.conf ${i}:/tmp/slurm.conf >/dev/null
