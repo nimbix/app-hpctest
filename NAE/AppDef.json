@@ -4,8 +4,7 @@
   "author": "Nimbix, Inc.",
   "licensed": true,
   "classifications": [
-    "System",
-    "Software Development/Software Testing"
+      "HPC/Development"
   ],
   "machines": [
     "n[3-9]",
